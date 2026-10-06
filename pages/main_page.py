@@ -16,8 +16,7 @@ class MainPage(BasePage):
             MainPageLocators.QUESTION[0],
             MainPageLocators.QUESTION[1].format(question_index)
         )
-        self.scroll_to_element(locator)
-        self.click_element(locator)
+        self.scroll_and_click(locator)
 
     @allure.step('Получить ответ на вопрос с индексом {question_index}')
     def get_answer_text(self, question_index):

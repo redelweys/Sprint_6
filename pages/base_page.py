@@ -1,6 +1,7 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import ElementClickInterceptedException
 
 class BasePage:
 
@@ -23,7 +24,7 @@ class BasePage:
     def scroll_to_element(self, locator):
         element = self.find_element_with_wait(locator)
         self.driver.execute_script(
-            "arguments[0].scrollIntoView({block: 'center'});",
+            "arguments[0].scrollIntoView({behavior: 'instant', block: 'center'});",
             element
         )
 
@@ -47,3 +48,27 @@ class BasePage:
             )
 
         return self.driver.current_url
+
+    def get_window_handles(self):
+        return self.driver.window_handles
+
+    def wait_for_new_window(self, old_windows):
+        WebDriverWait(self.driver, 10).until(
+            EC.new_window_is_opened(old_windows)
+        )
+
+    def switch_to_window(self, window):
+        self.driver.switch_to.window(window)
+
+    def scroll_and_click(self, locator):
+        def try_click(driver):
+            self.scroll_to_element(locator)
+            element = driver.find_element(*locator)
+
+            try:
+                element.click()
+                return True
+            except ElementClickInterceptedException:
+                return False
+
+        WebDriverWait(self.driver, 10).until(try_click)
